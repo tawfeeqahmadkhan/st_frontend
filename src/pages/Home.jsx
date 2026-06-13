@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import heroimg from'../public/hero-bg.png'
 import {
   RiShieldCheckLine, RiFlashlightLine, RiLockPasswordLine, RiStarLine,
   RiFilterLine, RiBellLine, RiArrowRightLine, RiCheckLine, RiMapPin2Line,
@@ -7,8 +8,39 @@ import {
   RiBuilding4Line, RiCustomerService2Line, RiShoppingCartLine,
 } from 'react-icons/ri'
 import { HiStar } from 'react-icons/hi'
+import { useCMS } from '../context/CMSContext'
 
-// ── Data ─────────────────────────────────────────────────────────────────────
+// ── Icon maps (visual config stays in code, text comes from CMS) ──────────────
+
+const statIcons = [
+  { icon: RiFlashlightLine, color: 'text-violet-600', bg: 'bg-violet-50' },
+  { icon: RiMapPin2Line, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { icon: RiTimeLine, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  { icon: RiMoneyDollarCircleLine, color: 'text-amber-600', bg: 'bg-amber-50' },
+]
+
+const stepIcons = [
+  { icon: RiUserStarLine, color: 'bg-violet-500' },
+  { icon: RiFilterLine, color: 'bg-blue-500' },
+  { icon: RiShoppingCartLine, color: 'bg-amber-500' },
+  { icon: RiBellLine, color: 'bg-emerald-500' },
+  { icon: RiStarLine, color: 'bg-pink-500' },
+]
+
+const featureIcons = [
+  { icon: RiShieldCheckLine, color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
+  { icon: RiFlashlightLine, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
+  { icon: RiLockPasswordLine, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
+  { icon: RiBuilding4Line, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100' },
+  { icon: RiFilterLine, color: 'text-pink-600', bg: 'bg-pink-50 border-pink-100' },
+  { icon: RiCustomerService2Line, color: 'text-cyan-600', bg: 'bg-cyan-50 border-cyan-100' },
+]
+
+const testimonialGrads = [
+  'from-violet-400 to-purple-600',
+  'from-pink-400 to-rose-600',
+  'from-blue-400 to-indigo-600',
+]
 
 const heroLeads = [
   { id: 1, name: 'Priya S.', city: 'Mumbai', budget: '18–25L', project: '4BHK Full Home Interior', ago: '2 min' },
@@ -19,51 +51,6 @@ const heroLeads = [
   { id: 6, name: 'Ananya R.', city: 'Chennai', budget: '15–22L', project: '3BHK Full Home Design', ago: '19 min' },
   { id: 7, name: 'Karan S.', city: 'Ahmedabad', budget: '6–10L', project: 'Living Room + Foyer', ago: '23 min' },
   { id: 8, name: 'Neha P.', city: 'Vadodara', budget: '8–10L', project: 'Wardrobe + Bedroom Makeover', ago: '27 min' },
-]
-
-const stats = [
-  { value: '2,400+', label: 'Monthly Leads', icon: RiFlashlightLine, color: 'text-violet-600', bg: 'bg-violet-50' },
-  { value: '48', label: 'Active Cities', icon: RiMapPin2Line, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { value: '4 min', label: 'Avg. Alert Time', icon: RiTimeLine, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-  { value: '₹45Cr+', label: 'Project Value', icon: RiMoneyDollarCircleLine, color: 'text-amber-600', bg: 'bg-amber-50' },
-]
-
-const steps = [
-  { num: 1, title: 'Create Account', desc: 'Sign up free in 60 seconds — no credit card required.', icon: RiUserStarLine, color: 'bg-violet-500' },
-  { num: 2, title: 'Browse Verified Leads', desc: 'Filter by city, budget & project category to find ideal clients.', icon: RiFilterLine, color: 'bg-blue-500' },
-  { num: 3, title: 'Buy a Lead Directly', desc: 'One-time fee per lead. No subscriptions, no hidden charges.', icon: RiShoppingCartLine, color: 'bg-amber-500' },
-  { num: 4, title: 'Contact the Client', desc: 'Get full details instantly. Call or email them right away.', icon: RiBellLine, color: 'bg-emerald-500' },
-  { num: 5, title: 'Win the Project', desc: 'Book a site visit, show your portfolio, and close the deal.', icon: RiStarLine, color: 'bg-pink-500' },
-]
-
-const features = [
-  { icon: RiShieldCheckLine, title: 'Verified Leads', desc: 'Every lead is manually verified before listing.', color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
-  { icon: RiFlashlightLine, title: 'Instant Access', desc: 'Full client details unlocked the moment you purchase.', color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
-  { icon: RiLockPasswordLine, title: 'Secure Payments', desc: 'Bank-grade SSL encryption on every transaction.', color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
-  { icon: RiBuilding4Line, title: 'Premium Projects', desc: 'High-budget clients from Tier-1 cities who are ready to hire.', color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100' },
-  { icon: RiFilterLine, title: 'Smart Filters', desc: 'Target by city, budget, and project specialty.', color: 'text-pink-600', bg: 'bg-pink-50 border-pink-100' },
-  { icon: RiCustomerService2Line, title: 'Dedicated Support', desc: 'Our team helps you close more deals, every step of the way.', color: 'text-cyan-600', bg: 'bg-cyan-50 border-cyan-100' },
-]
-
-const testimonials = [
-  { name: 'Ravi Sharma', role: 'Senior Interior Designer', city: 'Mumbai', quote: "Scale Studio helped me get 3 new projects in my first month. The leads are genuinely verified — best ROI I've had.", result: '₹12L in new projects', initials: 'RS', grad: 'from-violet-400 to-purple-600' },
-  { name: 'Priya Kapoor', role: 'Studio Owner', city: 'Delhi', quote: "The quality here is unlike anything else. Within 6 months I closed deals worth ₹45L+ through Scale Studio.", result: '₹45L+ closed', initials: 'PK', grad: 'from-pink-400 to-rose-600' },
-  { name: 'Vikram Nair', role: 'Architect & Designer', city: 'Bangalore', quote: "Every single lead I purchased converted into at least a site visit. The targeting is spot-on. Highly recommended!", result: '8/10 leads converted', initials: 'VN', grad: 'from-blue-400 to-indigo-600' },
-]
-
-const faqs = [
-  { q: 'What types of design leads are available?', a: 'Full home interiors, modular kitchens, offices, restaurants, retail stores, individual rooms, landscape & exteriors, and 3D visualizations — across 48+ cities in India.' },
-  { q: 'How are leads verified before listing?', a: 'Our team manually calls each lead to confirm identity, project scope, and budget before approval. Only genuine enquiries reach the marketplace.' },
-  { q: "Can I get a refund if a lead doesn't respond?", a: 'Yes. If a client is unresponsive within 48 hours, you can raise a refund request within 7 days of purchase. Our team reviews each case within 24 hours.' },
-  { q: 'How much does a lead cost?', a: 'Lead prices range from ₹299 to ₹1,499 depending on project budget size. You pay only for leads you want — no subscriptions, no lock-in.' },
-  { q: 'How quickly do I get client details after purchase?', a: 'Instantly — full name, phone, email, and project requirements are unlocked the moment your purchase completes.' },
-  { q: 'Is my payment information secure?', a: 'Absolutely. 256-bit SSL encryption on all transactions. We do not store card details. Payments go through certified gateways.' },
-]
-
-const pricingPlans = [
-  { name: 'Starter', price: '₹299', tag: null, perLead: 'per lead', highlight: false, features: ['All lead categories', 'Filter by city & budget', 'Instant contact unlock', 'Email support'] },
-  { name: 'Buy Any Lead', price: '₹299–₹1499', tag: 'How It Works', perLead: 'one-time per lead', highlight: true, features: ['Pay only for what you want', 'No monthly subscription', 'Instant access to contact', 'Full refund policy', 'Priority alerts available'] },
-  { name: 'Bulk Leads', price: 'Custom', tag: 'High Volume', perLead: 'negotiate the best rate', highlight: false, features: ['10+ leads / month', 'Dedicated account manager', 'Exclusive high-budget leads', 'Custom city targeting', 'Analytics dashboard'] },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -127,6 +114,7 @@ function FAQItem({ q, a }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const { cms } = useCMS()
   const [feedLeads, setFeedLeads] = useState(heroLeads.slice(0, 5))
   const [nextIdx, setNextIdx] = useState(4)
   const [animTick, setAnimTick] = useState(0)
@@ -143,6 +131,15 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
 
+  const hero = cms.hero
+  const statsData = cms.stats
+  const hiw = cms.howItWorks
+  const why = cms.whyUs
+  const pricingData = cms.pricing
+  const testimonialsData = cms.testimonials
+  const faqData = cms.faq
+  const cta = cms.ctaSection
+
   return (
     <div className="bg-mesh">
 
@@ -152,7 +149,7 @@ export default function Home() {
         {/* Background: full-width interior image with shade overlay */}
         <div className="absolute inset-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop"
+            src={heroimg}
             alt=""
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
@@ -167,28 +164,27 @@ export default function Home() {
             <div className="hero-left flex flex-col gap-7">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white/90 text-xs font-bold w-fit uppercase tracking-widest">
                 <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-                Scale Studio — Premium Lead Marketplace
+                {hero.badge}
               </div>
 
               <h1 className="text-4xl lg:text-[58px] font-extrabold leading-[1.06] tracking-tight text-white">
-                Buy High-Quality<br />
+                {hero.heading1}<br />
                 <span style={{ background: 'linear-gradient(135deg,#a78bfa 0%,#818cf8 60%,#a78bfa 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 4s linear infinite' }}>
-                  Design Leads
+                  {hero.heading2}
                 </span><br />
-                That Convert.
+                {hero.heading3}
               </h1>
 
               <p className="text-white/75 text-base lg:text-lg leading-relaxed max-w-[480px]">
-                Connect with clients actively searching for interior designers.
-                Purchase individual verified leads — no subscription, no lock-in.
+                {hero.subtext}
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
                 <Link to="/leads" className="btn-primary inline-flex items-center gap-3 px-7 py-3.5 text-sm lg:text-base">
-                  Browse Leads <RiArrowRightLine className="text-lg" />
+                  {hero.cta1} <RiArrowRightLine className="text-lg" />
                 </Link>
                 <Link to="/register" className="inline-flex items-center gap-3 px-7 py-3.5 text-sm lg:text-base font-bold rounded-[14px] border-2 border-white/30 text-white hover:bg-white/10 transition-all">
-                  Join as Designer
+                  {hero.cta2}
                 </Link>
               </div>
 
@@ -205,13 +201,17 @@ export default function Home() {
                   <div className="flex items-center gap-0.5 mb-0.5">
                     {[...Array(5)].map((_, i) => <HiStar key={i} className="text-amber-400 text-sm" />)}
                   </div>
-                  <p className="text-white/60 text-xs">Trusted by <span className="text-white font-bold">1,200+ designers</span></p>
+                  <p className="text-white/60 text-xs">{hero.socialProof}</p>
                 </div>
               </div>
 
               {/* Mini stats */}
               <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/15">
-                {[['2,400+','Monthly Leads'],['48','Active Cities'],['₹45Cr+','Project Value']].map(([v,l]) => (
+                {[
+                  [hero.stat1Value, hero.stat1Label],
+                  [hero.stat2Value, hero.stat2Label],
+                  [hero.stat3Value, hero.stat3Label],
+                ].map(([v,l]) => (
                   <div key={l}>
                     <p className="text-xl lg:text-2xl font-extrabold text-white tracking-tight">{v}</p>
                     <p className="text-white/55 text-xs mt-0.5">{l}</p>
@@ -331,15 +331,18 @@ export default function Home() {
       <Section className="py-6">
         <div className="max-w-7xl mx-auto px-6">
           <div className="bg-white border border-violet-100 rounded-2xl shadow-card grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-violet-50 overflow-hidden">
-            {stats.map(({ value, label, icon: Icon, color, bg }) => (
-              <div key={label} className="flex flex-col items-center py-8 px-6 text-center hover:bg-violet-50/30 transition-colors">
-                <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-3`}>
-                  <Icon className={`text-xl ${color}`} />
+            {(statsData || []).map(({ value, label }, idx) => {
+              const { icon: Icon, color, bg } = statIcons[idx] || statIcons[0]
+              return (
+                <div key={label} className="flex flex-col items-center py-8 px-6 text-center hover:bg-violet-50/30 transition-colors">
+                  <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center mb-3`}>
+                    <Icon className={`text-xl ${color}`} />
+                  </div>
+                  <p className="text-ink font-extrabold text-3xl tracking-tight">{value}</p>
+                  <p className="text-ink-3 text-xs font-semibold uppercase tracking-wider mt-1">{label}</p>
                 </div>
-                <p className="text-ink font-extrabold text-3xl tracking-tight">{value}</p>
-                <p className="text-ink-3 text-xs font-semibold uppercase tracking-wider mt-1">{label}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </Section>
@@ -348,29 +351,32 @@ export default function Home() {
       <Section id="how-it-works" className="py-28" alt>
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <div className="section-tag mx-auto mb-5">How It Works</div>
+            <div className="section-tag mx-auto mb-5">{hiw.tag}</div>
             <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-4 tracking-tight">
-              From signup to <span className="gradient-text">site visit</span> — fast
+              {hiw.heading.split(' — ')[0]} — <span className="gradient-text">{hiw.heading.split(' — ')[1]}</span>
             </h2>
-            <p className="text-ink-2 text-lg max-w-lg mx-auto">No subscription needed. Buy only the leads you want, when you want them.</p>
+            <p className="text-ink-2 text-lg max-w-lg mx-auto">{hiw.subtext}</p>
           </div>
 
           <div className="relative grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             <div className="hidden lg:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-violet-200 via-violet-400 to-violet-200" />
-            {steps.map((step, i) => (
-              <div key={step.num} className="flex flex-col items-center text-center group" style={{ transitionDelay: `${i * 60}ms` }}>
-                <div className="relative mb-5">
-                  <div className={`w-16 h-16 rounded-2xl ${step.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 relative z-10`}>
-                    <step.icon className="text-white text-2xl" />
+            {(hiw.steps || []).map((step, i) => {
+              const { icon: StepIcon, color } = stepIcons[i] || stepIcons[0]
+              return (
+                <div key={i} className="flex flex-col items-center text-center group" style={{ transitionDelay: `${i * 60}ms` }}>
+                  <div className="relative mb-5">
+                    <div className={`w-16 h-16 rounded-2xl ${color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 relative z-10`}>
+                      <StepIcon className="text-white text-2xl" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-lg bg-white border-2 border-violet-200 flex items-center justify-center text-violet-700 text-xs font-extrabold z-20 shadow-sm">
+                      {i + 1}
+                    </div>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-lg bg-white border-2 border-violet-200 flex items-center justify-center text-violet-700 text-xs font-extrabold z-20 shadow-sm">
-                    {step.num}
-                  </div>
+                  <h3 className="text-ink font-bold text-sm mb-2">{step.title}</h3>
+                  <p className="text-ink-2 text-xs leading-relaxed">{step.desc}</p>
                 </div>
-                <h3 className="text-ink font-bold text-sm mb-2">{step.title}</h3>
-                <p className="text-ink-2 text-xs leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </Section>
@@ -380,15 +386,15 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="section-tag mb-5">Why Scale Studio</div>
+              <div className="section-tag mb-5">{why.tag}</div>
               <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-5 tracking-tight leading-tight">
-                Everything to grow<br />your <span className="gradient-text">design business</span>
+                {why.heading1}<br />your <span className="gradient-text">{why.heading2}</span>
               </h2>
               <p className="text-ink-2 text-lg leading-relaxed mb-8">
-                Built for interior designers who want a reliable, premium source of qualified client leads — without expensive subscriptions.
+                {why.subtext}
               </p>
               <div className="flex flex-col gap-3 mb-8">
-                {['Pay per lead — from ₹299', 'Full refund policy if unresponsive', 'Instant client contact unlock', '48+ cities across India'].map((item, i) => (
+                {(why.bullets || []).map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
                       <RiCheckLine className="text-violet-600 text-xs" />
@@ -398,20 +404,23 @@ export default function Home() {
                 ))}
               </div>
               <Link to="/register" className="btn-primary inline-flex items-center gap-2.5 px-7 py-3.5 text-sm">
-                Start for Free <RiArrowRightLine />
+                {why.cta} <RiArrowRightLine />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {features.map((f, i) => (
-                <div key={f.title} className="glass-card rounded-2xl p-5 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
-                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${f.bg}`}>
-                    <f.icon className={`text-xl ${f.color}`} />
+              {(why.features || []).map((f, i) => {
+                const { icon: FeatIcon, color, bg } = featureIcons[i] || featureIcons[0]
+                return (
+                  <div key={f.title} className="glass-card rounded-2xl p-5 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
+                    <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${bg}`}>
+                      <FeatIcon className={`text-xl ${color}`} />
+                    </div>
+                    <h3 className="text-ink font-bold text-sm mb-1.5">{f.title}</h3>
+                    <p className="text-ink-2 text-xs leading-relaxed">{f.desc}</p>
                   </div>
-                  <h3 className="text-ink font-bold text-sm mb-1.5">{f.title}</h3>
-                  <p className="text-ink-2 text-xs leading-relaxed">{f.desc}</p>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
@@ -421,15 +430,15 @@ export default function Home() {
       <Section id="pricing" className="py-28" alt>
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-14">
-            <div className="section-tag mx-auto mb-5">Pricing</div>
+            <div className="section-tag mx-auto mb-5">{pricingData.tag}</div>
             <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-4 tracking-tight">
-              No subscriptions. <span className="gradient-text">Buy per lead.</span>
+              {pricingData.heading1} <span className="gradient-text">{pricingData.heading2}</span>
             </h2>
-            <p className="text-ink-2 text-lg max-w-lg mx-auto">Pay a small one-time fee for each lead you want. Full contact details unlocked instantly.</p>
+            <p className="text-ink-2 text-lg max-w-lg mx-auto">{pricingData.subtext}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {pricingPlans.map((plan, i) => (
+            {(pricingData.plans || []).map((plan, i) => (
               <div
                 key={plan.name}
                 className={`relative rounded-2xl p-6 flex flex-col h-full border-2 transition-all duration-300 hover:-translate-y-1 ${
@@ -451,7 +460,7 @@ export default function Home() {
                   <p className={`text-sm mt-1 ${plan.highlight ? 'text-violet-300' : 'text-violet-600'}`}>{plan.perLead}</p>
                 </div>
                 <ul className="flex flex-col gap-3 flex-1 mb-6">
-                  {plan.features.map((f, j) => (
+                  {(plan.features || []).map((f, j) => (
                     <li key={j} className="flex items-start gap-2.5 text-sm">
                       <RiCheckLine className={`text-base mt-0.5 flex-shrink-0 ${plan.highlight ? 'text-violet-300' : 'text-violet-500'}`} />
                       <span className={plan.highlight ? 'text-violet-100' : 'text-ink-2'}>{f}</span>
@@ -461,7 +470,7 @@ export default function Home() {
                 <Link to="/leads" className={`py-3 rounded-xl font-bold text-sm text-center transition-all ${
                   plan.highlight ? 'bg-white text-violet-700 hover:bg-violet-50' : 'btn-ghost'
                 }`}>
-                  Browse Leads
+                  {pricingData.cta}
                 </Link>
               </div>
             ))}
@@ -473,15 +482,15 @@ export default function Home() {
       <Section className="py-28">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-14">
-            <div className="section-tag mx-auto mb-5">Testimonials</div>
+            <div className="section-tag mx-auto mb-5">{testimonialsData.tag}</div>
             <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-4 tracking-tight">
-              Designers love <span className="gradient-text">Scale Studio</span>
+              {testimonialsData.heading1} <span className="gradient-text">{testimonialsData.heading2}</span>
             </h2>
-            <p className="text-ink-2 text-lg">Real results from real designers across India.</p>
+            <p className="text-ink-2 text-lg">{testimonialsData.subtext}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
+            {(testimonialsData.items || []).map((t, idx) => (
               <div key={t.name} className="glass-card rounded-2xl p-6 flex flex-col gap-4 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
                 <RiDoubleQuotesL className="text-violet-300 text-4xl" />
                 <p className="text-ink-2 text-sm leading-relaxed flex-1">"{t.quote}"</p>
@@ -489,8 +498,8 @@ export default function Home() {
                   {[...Array(5)].map((_, j) => <HiStar key={j} className="text-amber-400 text-sm" />)}
                 </div>
                 <div className="flex items-center gap-3 pt-4 border-t border-violet-50">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.grad} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                    {t.initials}
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.grad || testimonialGrads[idx % testimonialGrads.length]} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
+                    {t.initials || t.name?.split(' ').map(n => n[0]).join('').slice(0,2)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-ink font-bold text-sm">{t.name}</p>
@@ -508,13 +517,13 @@ export default function Home() {
       <Section className="py-28" alt>
         <div className="max-w-3xl mx-auto px-6">
           <div className="text-center mb-14">
-            <div className="section-tag mx-auto mb-5">FAQ</div>
+            <div className="section-tag mx-auto mb-5">{faqData.tag}</div>
             <h2 className="text-4xl font-extrabold text-ink mb-4 tracking-tight">
-              Frequently asked <span className="gradient-text">questions</span>
+              {faqData.heading.split('questions')[0]}<span className="gradient-text">questions</span>
             </h2>
           </div>
           <div className="flex flex-col gap-3">
-            {faqs.map((item, i) => <FAQItem key={i} {...item} />)}
+            {(faqData.items || []).map((item, i) => <FAQItem key={i} q={item.q} a={item.a} />)}
           </div>
         </div>
       </Section>
@@ -527,23 +536,23 @@ export default function Home() {
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
             <div className="relative z-10 py-16 px-10 text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white/90 text-xs font-bold mb-6">
-                <RiFlashlightLine /> Get Started Today — Free
+                <RiFlashlightLine /> {cta.badge}
               </div>
               <h2 className="text-4xl lg:text-5xl font-extrabold text-white mb-4 tracking-tight">
-                Ready to grow your<br />design business?
+                {cta.heading1}<br />{cta.heading2}
               </h2>
               <p className="text-violet-200 text-lg mb-8 max-w-md mx-auto">
-                Join 1,200+ designers closing projects every week with Scale Studio leads.
+                {cta.subtext}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link to="/register" className="bg-white text-violet-700 font-bold rounded-2xl px-8 py-4 text-base hover:bg-violet-50 transition-all hover:scale-105 shadow-lg inline-flex items-center gap-2.5">
-                  Join Free <RiArrowRightLine className="text-lg" />
+                  {cta.cta1} <RiArrowRightLine className="text-lg" />
                 </Link>
                 <Link to="/leads" className="border-2 border-white/30 text-white font-bold rounded-2xl px-8 py-4 text-base hover:bg-white/10 transition-all inline-flex items-center gap-2.5">
-                  Browse Leads
+                  {cta.cta2}
                 </Link>
               </div>
-              <p className="text-violet-300 text-xs mt-6">No subscription · Pay per lead · Cancel anytime</p>
+              <p className="text-violet-300 text-xs mt-6">{cta.footnote}</p>
             </div>
           </div>
         </div>

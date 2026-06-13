@@ -1,23 +1,28 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useCMS } from '../../context/CMSContext'
 import { HiMenu, HiX, HiChevronDown } from 'react-icons/hi'
 import { RiShieldUserLine, RiLogoutBoxLine, RiDashboardLine, RiFlashlightLine } from 'react-icons/ri'
-
-const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'Pricing', href: '/#pricing' },
-  { label: 'Leads', href: '/leads' },
-]
+import logo from '../../public/logo.png'
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const { user, logout } = useAuth()
+  const { cms } = useCMS()
   const location = useLocation()
   const navigate = useNavigate()
+
+  const header = cms.header
+
+  const navLinks = [
+    { label: header.nav1 || 'Home', href: '/' },
+    { label: header.nav2 || 'How It Works', href: '/#how-it-works' },
+    { label: header.nav3 || 'Pricing', href: '/#pricing' },
+    { label: header.nav4 || 'Leads', href: '/leads' },
+  ]
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -41,16 +46,10 @@ export default function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <div className="relative w-9 h-9">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-700 rounded-xl rotate-3 group-hover:rotate-6 transition-transform duration-300 shadow-sm" />
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-400 to-purple-600 rounded-xl flex items-center justify-center shadow-glow-sm">
-              <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
-                <path d="M2 12L8 4L14 12" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M5 9L8 6L11 9" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6"/>
-              </svg>
-            </div>
+            <img src={logo} alt={`${header.brandName}${header.brandSuffix} logo`} className="w-9 h-9 object-contain rounded-xl" />
           </div>
           <span className="text-ink font-extrabold text-lg tracking-tight">
-            Scale<span className="text-violet-600">Studio</span>
+            {header.brandName}<span className="text-violet-600">{header.brandSuffix}</span>
           </span>
         </Link>
 
@@ -109,9 +108,9 @@ export default function Header() {
             </div>
           ) : (
             <>
-              <Link to="/login" className="btn-outline-dark px-5 py-2.5 text-sm">Login</Link>
+              <Link to="/login" className="btn-outline-dark px-5 py-2.5 text-sm">{header.loginBtn}</Link>
               <Link to="/register" className="btn-primary px-5 py-2.5 text-sm relative overflow-hidden group">
-                <span>Join as Designer</span>
+                <span>{header.joinBtn}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
               </Link>
             </>
@@ -141,8 +140,8 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Link to="/login" className="btn-outline-dark py-3 text-sm text-center">Login</Link>
-                    <Link to="/register" className="btn-primary py-3 text-sm text-center">Join as Designer</Link>
+                    <Link to="/login" className="btn-outline-dark py-3 text-sm text-center">{header.loginBtn}</Link>
+                    <Link to="/register" className="btn-primary py-3 text-sm text-center">{header.joinBtn}</Link>
                   </>
                 )}
               </div>

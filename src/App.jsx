@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
+import { CMSProvider } from './context/CMSContext'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import Home from './pages/Home'
@@ -40,6 +41,7 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
+        <CMSProvider>
         <Toaster
           position="top-right"
           toastOptions={{
@@ -58,6 +60,7 @@ export default function App() {
           }}
         />
         <AppRoutes />
+        </CMSProvider>
       </AuthProvider>
     </Router>
   )

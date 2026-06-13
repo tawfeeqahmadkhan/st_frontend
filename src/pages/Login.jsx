@@ -109,7 +109,7 @@ export default function Login() {
               <p className="text-ink font-bold text-xs">Demo Credentials</p>
             </div>
             <p className="text-ink-2 text-xs">Designer: <span className="font-mono text-violet-700">designer@scalestudio.in</span> / <span className="font-mono text-violet-700">Designer@123</span></p>
-            <p className="text-ink-2 text-xs mt-1">Admin: <span className="font-mono text-violet-700">admin@scalestudio.in</span> / <span className="font-mono text-violet-700">Admin@123</span></p>
+            <p className="text-ink-2 text-xs mt-1">Admin: <span className="font-mono text-violet-700">admin@scalestudio.in</span> / <span className="font-mono text-violet-700">123456</span></p>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { FiTwitter, FiInstagram, FiLinkedin, FiYoutube } from 'react-icons/fi'
 import { RiMailLine, RiPhoneLine, RiMapPinLine } from 'react-icons/ri'
+import { useCMS } from '../../context/CMSContext'
+import logo from '../../public/logo.png'
 
 const footerLinks = {
   Product: [{ label: 'Browse Leads', href: '/leads' }, { label: 'How It Works', href: '/#how-it-works' }, { label: 'Pricing', href: '/#pricing' }, { label: 'Join as Designer', href: '/register' }],
@@ -10,6 +12,10 @@ const footerLinks = {
 }
 
 export default function Footer() {
+  const { cms } = useCMS()
+  const footer = cms.footer
+  const header = cms.header
+
   return (
     <footer className="border-t border-violet-100 bg-white relative overflow-hidden">
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-violet-100/40 rounded-full blur-3xl pointer-events-none" />
@@ -19,15 +25,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-700 rounded-xl flex items-center justify-center shadow-sm">
-                <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
-                  <path d="M2 12L8 4L14 12" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <span className="text-ink font-extrabold text-lg">Scale<span className="text-violet-600">Studio</span></span>
+              <img src={logo} alt={`${header.brandName}${header.brandSuffix} logo`} className="w-9 h-9 object-contain rounded-xl" />
+              <span className="text-ink font-extrabold text-lg">{header.brandName}<span className="text-violet-600">{header.brandSuffix}</span></span>
             </Link>
             <p className="text-ink-2 text-sm leading-relaxed mb-6 max-w-xs">
-              The premium marketplace where top interior designers find high-quality, verified client leads.
+              {footer.tagline}
             </p>
             <div className="flex items-center gap-2.5 mb-6">
               {[FiTwitter, FiInstagram, FiLinkedin, FiYoutube].map((Icon, i) => (
@@ -37,7 +39,7 @@ export default function Footer() {
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              {[{ Icon: RiMailLine, text: 'hello@scalestudio.in' }, { Icon: RiPhoneLine, text: '+91 98765 00000' }, { Icon: RiMapPinLine, text: 'Mumbai, Maharashtra' }].map(({ Icon, text }, i) => (
+              {[{ Icon: RiMailLine, text: footer.email }, { Icon: RiPhoneLine, text: footer.phone }, { Icon: RiMapPinLine, text: footer.address }].map(({ Icon, text }, i) => (
                 <div key={i} className="flex items-center gap-2 text-ink-3 text-xs">
                   <Icon className="text-violet-500 text-sm flex-shrink-0" />{text}
                 </div>
@@ -60,7 +62,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-violet-50 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-ink-3 text-xs">© 2025 Scale Studio. All rights reserved.</p>
+          <p className="text-ink-3 text-xs">{footer.copyright}</p>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-ink-3 text-xs">All systems operational</span>
