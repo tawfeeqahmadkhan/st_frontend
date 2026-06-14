@@ -17,8 +17,9 @@ export default function Footer() {
   const header = cms.header
 
   return (
-    <footer className="border-t border-violet-100 bg-white relative overflow-hidden">
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-violet-100/40 rounded-full blur-3xl pointer-events-none" />
+    <footer className="bg-black border-t border-white/10 relative overflow-hidden">
+      {/* Subtle violet glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-violet-900/20 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-12">
@@ -26,22 +27,24 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-5">
               <img src={logo} alt={`${header.brandName}${header.brandSuffix} logo`} className="w-9 h-9 object-contain rounded-xl" />
-              <span className="text-ink font-extrabold text-lg">{header.brandName}<span className="text-violet-600">{header.brandSuffix}</span></span>
+              <span className="text-white font-extrabold text-lg">
+                {header.brandName}<span className="text-violet-400">{header.brandSuffix}</span>
+              </span>
             </Link>
-            <p className="text-ink-2 text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="text-white/50 text-sm leading-relaxed mb-6 max-w-xs">
               {footer.tagline}
             </p>
             <div className="flex items-center gap-2.5 mb-6">
               {[FiTwitter, FiInstagram, FiLinkedin, FiYoutube].map((Icon, i) => (
-                <a key={i} href="#" className="w-9 h-9 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-ink-3 hover:text-violet-600 hover:border-violet-300 hover:bg-violet-100 transition-all">
+                <a key={i} href="#" className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-violet-400 hover:border-violet-500/50 hover:bg-violet-500/10 transition-all">
                   <Icon className="text-sm" />
                 </a>
               ))}
             </div>
             <div className="flex flex-col gap-2">
               {[{ Icon: RiMailLine, text: footer.email }, { Icon: RiPhoneLine, text: footer.phone }, { Icon: RiMapPinLine, text: footer.address }].map(({ Icon, text }, i) => (
-                <div key={i} className="flex items-center gap-2 text-ink-3 text-xs">
-                  <Icon className="text-violet-500 text-sm flex-shrink-0" />{text}
+                <div key={i} className="flex items-center gap-2 text-white/40 text-xs">
+                  <Icon className="text-violet-400 text-sm flex-shrink-0" />{text}
                 </div>
               ))}
             </div>
@@ -49,11 +52,11 @@ export default function Footer() {
 
           {Object.entries(footerLinks).map(([section, links]) => (
             <div key={section}>
-              <h3 className="text-ink font-bold text-sm mb-4">{section}</h3>
+              <h3 className="text-white font-bold text-sm mb-4">{section}</h3>
               <ul className="flex flex-col gap-2.5">
                 {links.map(link => (
                   <li key={link.label}>
-                    <Link to={link.href} className="text-ink-3 text-sm hover:text-ink transition-colors">{link.label}</Link>
+                    <Link to={link.href} className="text-white/40 text-sm hover:text-violet-400 transition-colors">{link.label}</Link>
                   </li>
                 ))}
               </ul>
@@ -61,13 +64,13 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-violet-50 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-ink-3 text-xs">{footer.copyright}</p>
+        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-white/30 text-xs">{footer.copyright}</p>
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-ink-3 text-xs">All systems operational</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+            <span className="text-white/30 text-xs">All systems operational</span>
           </div>
-          <p className="text-ink-3 text-xs">Made with ♥ in India</p>
+          <p className="text-white/30 text-xs">Made with ♥ in India</p>
         </div>
       </div>
     </footer>

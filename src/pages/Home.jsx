@@ -4,11 +4,13 @@ import heroimg from'../public/hero-bg.png'
 import {
   RiShieldCheckLine, RiFlashlightLine, RiLockPasswordLine, RiStarLine,
   RiFilterLine, RiBellLine, RiArrowRightLine, RiCheckLine, RiMapPin2Line,
-  RiTimeLine, RiUserStarLine, RiMoneyDollarCircleLine, RiDoubleQuotesL,
-  RiBuilding4Line, RiCustomerService2Line, RiShoppingCartLine,
+  RiTimeLine, RiUserStarLine, RiMoneyDollarCircleLine,
+  RiShoppingCartLine, RiEyeLine,
+  RiLineChartLine, RiGroupLine, RiDashboardLine,
 } from 'react-icons/ri'
 import { HiStar } from 'react-icons/hi'
 import { useCMS } from '../context/CMSContext'
+import api from '../utils/api'
 
 // ── Icon maps (visual config stays in code, text comes from CMS) ──────────────
 
@@ -25,21 +27,6 @@ const stepIcons = [
   { icon: RiShoppingCartLine, color: 'bg-amber-500' },
   { icon: RiBellLine, color: 'bg-emerald-500' },
   { icon: RiStarLine, color: 'bg-pink-500' },
-]
-
-const featureIcons = [
-  { icon: RiShieldCheckLine, color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
-  { icon: RiFlashlightLine, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
-  { icon: RiLockPasswordLine, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
-  { icon: RiBuilding4Line, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100' },
-  { icon: RiFilterLine, color: 'text-pink-600', bg: 'bg-pink-50 border-pink-100' },
-  { icon: RiCustomerService2Line, color: 'text-cyan-600', bg: 'bg-cyan-50 border-cyan-100' },
-]
-
-const testimonialGrads = [
-  'from-violet-400 to-purple-600',
-  'from-pink-400 to-rose-600',
-  'from-blue-400 to-indigo-600',
 ]
 
 const heroLeads = [
@@ -118,6 +105,7 @@ export default function Home() {
   const [feedLeads, setFeedLeads] = useState(heroLeads.slice(0, 5))
   const [nextIdx, setNextIdx] = useState(4)
   const [animTick, setAnimTick] = useState(0)
+  const [previewLeads, setPreviewLeads] = useState([])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -131,12 +119,16 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    api.get('/leads', { params: { limit: 4, page: 1 } })
+      .then(r => setPreviewLeads(r.data.leads || []))
+      .catch(() => {})
+  }, [])
+
   const hero = cms.hero
   const statsData = cms.stats
   const hiw = cms.howItWorks
   const why = cms.whyUs
-  const pricingData = cms.pricing
-  const testimonialsData = cms.testimonials
   const faqData = cms.faq
   const cta = cms.ctaSection
 
@@ -381,134 +373,146 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ── WHY SCALE STUDIO ────────────────────────────────────────────── */}
+      {/* ── LEAD PREVIEW ────────────────────────────────────────────────── */}
       <Section className="py-28">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 items-start mb-14">
             <div>
-              <div className="section-tag mb-5">{why.tag}</div>
-              <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-5 tracking-tight leading-tight">
-                {why.heading1}<br />your <span className="gradient-text">{why.heading2}</span>
+              <div className="section-tag mb-5">Lead Marketplace</div>
+              <h2 className="text-4xl lg:text-5xl font-extrabold text-ink tracking-tight leading-tight">
+                Preview real buyer intent<br />before purchasing a lead.
               </h2>
-              <p className="text-ink-2 text-lg leading-relaxed mb-8">
+            </div>
+            <div className="lg:pt-6">
+              <p className="text-ink-2 text-lg leading-relaxed">
+                Browse leads added by our team. Designers can inspect city, service type, budget range, and brief before buying contact details.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {previewLeads.length > 0 ? previewLeads.map((lead, i) => (
+              <div key={lead._id} className="bg-white border border-violet-100 rounded-2xl p-5 flex flex-col gap-3 shadow-card hover:-translate-y-1 hover:shadow-card-hover transition-all duration-300">
+                {/* Top row */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-ink text-white text-[10px] font-bold">
+                    <RiMapPin2Line className="text-xs flex-shrink-0" />
+                    <span className="truncate max-w-[80px]">{lead.location?.city || '—'}</span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 border border-violet-200 text-[10px] font-bold uppercase tracking-wide">New</span>
+                </div>
+
+                {/* Category */}
+                <p className="text-violet-600 text-[10px] font-bold uppercase tracking-widest">{lead.category}</p>
+
+                {/* Title */}
+                <h3 className="text-ink font-bold text-sm leading-snug line-clamp-2">{lead.title}</h3>
+
+                {/* Description */}
+                {lead.projectDescription && (
+                  <p className="text-ink-3 text-xs leading-relaxed line-clamp-2">{lead.projectDescription}</p>
+                )}
+
+                {/* Contact preview box */}
+                <div className="rounded-xl border border-violet-100 bg-violet-50/50 p-3 flex items-center justify-between gap-2 mt-auto">
+                  <div>
+                    <p className="text-violet-600 text-[9px] font-bold uppercase tracking-widest mb-1">Contact Preview</p>
+                    <p className="text-ink-3 text-xs font-mono blur-[4px] select-none">+91 98765 43210</p>
+                  </div>
+                  <RiLockPasswordLine className="text-violet-400 text-base flex-shrink-0" />
+                </div>
+
+                {/* View Details button */}
+                <Link
+                  to="/leads"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-ink text-white text-xs font-bold hover:bg-ink/80 transition-all"
+                >
+                  <RiEyeLine className="text-sm" /> View Details
+                </Link>
+
+                {/* Time */}
+                <p className="text-ink-3 text-[10px] flex items-center gap-1">
+                  <RiTimeLine className="text-xs" />
+                  {lead.postedAt || lead.createdAt
+                    ? new Date(lead.postedAt || lead.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+                    : 'Recently'}
+                </p>
+              </div>
+            )) : (
+              /* Skeleton placeholders while loading */
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white border border-violet-100 rounded-2xl p-5 flex flex-col gap-3 shadow-card animate-pulse">
+                  <div className="h-6 w-24 bg-violet-50 rounded-full" />
+                  <div className="h-3 w-20 bg-violet-50/70 rounded" />
+                  <div className="h-4 w-full bg-violet-50 rounded" />
+                  <div className="h-16 bg-violet-50/50 rounded-xl" />
+                  <div className="h-9 bg-violet-100/50 rounded-xl" />
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="flex justify-center mt-12">
+            <Link to="/leads" className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 text-base">
+              Browse All Leads <RiArrowRightLine className="text-lg" />
+            </Link>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── WHY SCALE STUDIO ────────────────────────────────────────────── */}
+      <Section className="py-28" alt>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+
+            {/* Left — tag + heading + desc + two dark stat cards */}
+            <div>
+              <div className="section-tag mb-6">{why.tag}</div>
+              <h2 className="text-4xl lg:text-5xl font-extrabold text-ink tracking-tight leading-[1.1] mb-6">
+                {why.heading1}<br />{why.heading2}
+              </h2>
+              <p className="text-ink-2 text-base leading-relaxed mb-10 max-w-md">
                 {why.subtext}
               </p>
-              <div className="flex flex-col gap-3 mb-8">
-                {(why.bullets || []).map((item, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
-                      <RiCheckLine className="text-violet-600 text-xs" />
-                    </div>
-                    <span className="text-ink-2 text-sm font-medium">{item}</span>
+
+              {/* Stat cards — dark brand style */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-2xl bg-[#0d0b18] p-6 flex flex-col gap-3">
+                  <RiLineChartLine className="text-violet-400 text-xl" />
+                  <p className="text-white font-extrabold text-3xl tracking-tight">100%</p>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Verified before publishing</p>
+                    <p className="text-white/45 text-xs leading-relaxed">Admin-added leads include project scope, city, budget range, and contact preview</p>
                   </div>
-                ))}
+                </div>
+                <div className="rounded-2xl bg-[#0d0b18] p-6 flex flex-col gap-3">
+                  <RiGroupLine className="text-violet-400 text-xl" />
+                  <p className="text-white font-extrabold text-3xl tracking-tight">1–3</p>
+                  <div>
+                    <p className="text-white font-bold text-sm mb-1">Lead purchase marketplace</p>
+                    <p className="text-white/45 text-xs leading-relaxed">Controlled purchase model helps keep competition limited on each opportunity</p>
+                  </div>
+                </div>
               </div>
-              <Link to="/register" className="btn-primary inline-flex items-center gap-2.5 px-7 py-3.5 text-sm">
-                {why.cta} <RiArrowRightLine />
-              </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(why.features || []).map((f, i) => {
-                const { icon: FeatIcon, color, bg } = featureIcons[i] || featureIcons[0]
-                return (
-                  <div key={f.title} className="glass-card rounded-2xl p-5 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
-                    <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 ${bg}`}>
-                      <FeatIcon className={`text-xl ${color}`} />
-                    </div>
-                    <h3 className="text-ink font-bold text-sm mb-1.5">{f.title}</h3>
-                    <p className="text-ink-2 text-xs leading-relaxed">{f.desc}</p>
+            {/* Right — 2×2 feature cards (icon + title only) */}
+            <div className="grid grid-cols-2 gap-4 lg:pt-16">
+              {[
+                { icon: RiShieldCheckLine, title: (why.features?.[0]?.title) || 'Manually reviewed enquiries' },
+                { icon: RiMapPin2Line,     title: (why.features?.[1]?.title) || 'City, budget, and service context' },
+                { icon: RiLockPasswordLine,title: (why.features?.[2]?.title) || 'Buy contact details directly' },
+                { icon: RiDashboardLine,   title: (why.features?.[3]?.title) || 'Designer dashboard for follow-up' },
+              ].map(({ icon: Icon, title }, i) => (
+                <div key={i} className="bg-white border border-violet-100 rounded-2xl p-6 flex flex-col gap-4 shadow-card hover:-translate-y-1 hover:shadow-card-hover transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
+                    <Icon className="text-violet-600 text-xl" />
                   </div>
-                )
-              })}
+                  <p className="text-ink font-bold text-sm leading-snug">{title}</p>
+                </div>
+              ))}
             </div>
-          </div>
-        </div>
-      </Section>
 
-      {/* ── PRICING ─────────────────────────────────────────────────────── */}
-      <Section id="pricing" className="py-28" alt>
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <div className="section-tag mx-auto mb-5">{pricingData.tag}</div>
-            <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-4 tracking-tight">
-              {pricingData.heading1} <span className="gradient-text">{pricingData.heading2}</span>
-            </h2>
-            <p className="text-ink-2 text-lg max-w-lg mx-auto">{pricingData.subtext}</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {(pricingData.plans || []).map((plan, i) => (
-              <div
-                key={plan.name}
-                className={`relative rounded-2xl p-6 flex flex-col h-full border-2 transition-all duration-300 hover:-translate-y-1 ${
-                  plan.highlight
-                    ? 'bg-gradient-to-b from-violet-600 to-purple-700 border-transparent shadow-glow'
-                    : 'bg-white border-violet-100 shadow-card hover:border-violet-300 hover:shadow-card-hover'
-                }`}
-              >
-                {plan.tag && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className={`px-4 py-1 rounded-full text-xs font-bold shadow-sm ${plan.highlight ? 'bg-amber-400 text-amber-900' : 'bg-violet-600 text-white'}`}>
-                      {plan.tag}
-                    </span>
-                  </div>
-                )}
-                <div className="mb-6 mt-2">
-                  <h3 className={`text-sm font-bold mb-1 ${plan.highlight ? 'text-violet-200' : 'text-ink-3'}`}>{plan.name}</h3>
-                  <p className={`font-extrabold text-3xl ${plan.highlight ? 'text-white' : 'text-ink'}`}>{plan.price}</p>
-                  <p className={`text-sm mt-1 ${plan.highlight ? 'text-violet-300' : 'text-violet-600'}`}>{plan.perLead}</p>
-                </div>
-                <ul className="flex flex-col gap-3 flex-1 mb-6">
-                  {(plan.features || []).map((f, j) => (
-                    <li key={j} className="flex items-start gap-2.5 text-sm">
-                      <RiCheckLine className={`text-base mt-0.5 flex-shrink-0 ${plan.highlight ? 'text-violet-300' : 'text-violet-500'}`} />
-                      <span className={plan.highlight ? 'text-violet-100' : 'text-ink-2'}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/leads" className={`py-3 rounded-xl font-bold text-sm text-center transition-all ${
-                  plan.highlight ? 'bg-white text-violet-700 hover:bg-violet-50' : 'btn-ghost'
-                }`}>
-                  {pricingData.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ── TESTIMONIALS ────────────────────────────────────────────────── */}
-      <Section className="py-28">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <div className="section-tag mx-auto mb-5">{testimonialsData.tag}</div>
-            <h2 className="text-4xl lg:text-5xl font-extrabold text-ink mb-4 tracking-tight">
-              {testimonialsData.heading1} <span className="gradient-text">{testimonialsData.heading2}</span>
-            </h2>
-            <p className="text-ink-2 text-lg">{testimonialsData.subtext}</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {(testimonialsData.items || []).map((t, idx) => (
-              <div key={t.name} className="glass-card rounded-2xl p-6 flex flex-col gap-4 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
-                <RiDoubleQuotesL className="text-violet-300 text-4xl" />
-                <p className="text-ink-2 text-sm leading-relaxed flex-1">"{t.quote}"</p>
-                <div className="flex items-center gap-0.5 my-1">
-                  {[...Array(5)].map((_, j) => <HiStar key={j} className="text-amber-400 text-sm" />)}
-                </div>
-                <div className="flex items-center gap-3 pt-4 border-t border-violet-50">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.grad || testimonialGrads[idx % testimonialGrads.length]} flex items-center justify-center text-white text-sm font-bold flex-shrink-0`}>
-                    {t.initials || t.name?.split(' ').map(n => n[0]).join('').slice(0,2)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-ink font-bold text-sm">{t.name}</p>
-                    <p className="text-ink-3 text-xs">{t.role} · {t.city}</p>
-                  </div>
-                  <p className="text-emerald-600 font-extrabold text-sm">{t.result}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </Section>
