@@ -14,8 +14,8 @@ import {
 } from 'react-icons/ri'
 
 const CATEGORIES = ['Full Home Interiors','Modular Kitchen','Apartment Interiors','Villa Interiors']
-const STATES = ['Maharashtra','Delhi','Karnataka','Tamil Nadu','Telangana','Gujarat','Rajasthan','West Bengal','Kerala','Punjab','Goa','Madhya Pradesh']
-const INIT = { title:'',category:'Full Home Interiors',projectDescription:'',propertySize:'',budget:{min:'',max:''},location:{city:'',state:'',area:''},clientName:'',clientPhone:'',clientEmail:'',price:'',stock:3,isFeatured:false }
+const CITIES = ['Mumbai','Bangalore','Mysore','Hyderabad','Delhi']
+const INIT = { title:'',category:'Full Home Interiors',projectDescription:'',propertySize:'',budget:{min:'',max:''},location:{city:'Mumbai',area:''},clientName:'',clientPhone:'',clientEmail:'',price:'',stock:3,isFeatured:false }
 
 const VISIBILITY_FIELDS = [
   { key: 'category', label: 'Category' },
@@ -78,7 +78,7 @@ export default function Admin() {
   const openAdd = () => { setEditing(null); setForm(INIT); setShowForm(true) }
   const openEdit = (lead) => {
     setEditing(lead)
-    setForm({ title:lead.title,category:lead.category,projectDescription:lead.projectDescription||'',propertySize:lead.propertySize||'',budget:{min:lead.budget?.min,max:lead.budget?.max},location:{city:lead.location?.city,state:lead.location?.state||'',area:lead.location?.area||''},clientName:lead.clientName,clientPhone:lead.clientPhone,clientEmail:lead.clientEmail||'',price:lead.price,stock:lead.stock??3,isFeatured:lead.isFeatured||false })
+    setForm({ title:lead.title,category:lead.category,projectDescription:lead.projectDescription||'',propertySize:lead.propertySize||'',budget:{min:lead.budget?.min,max:lead.budget?.max},location:{city:lead.location?.city||'Mumbai',area:lead.location?.area||''},clientName:lead.clientName,clientPhone:lead.clientPhone,clientEmail:lead.clientEmail||'',price:lead.price,stock:lead.stock??3,isFeatured:lead.isFeatured||false })
     setShowForm(true)
   }
 
@@ -556,16 +556,11 @@ export default function Admin() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-ink-3 text-xs font-bold uppercase tracking-wider block mb-2">City *</label>
-                    <input type="text" value={form.location.city} onChange={e=>setForm({...form,location:{...form.location,city:e.target.value}})} className="input-field" placeholder="Mumbai" required/>
-                  </div>
-                  <div>
-                    <label className="text-ink-3 text-xs font-bold uppercase tracking-wider block mb-2">State</label>
-                    <select value={form.location.state} onChange={e=>setForm({...form,location:{...form.location,state:e.target.value}})} className="input-field">
-                      <option value="">Select state</option>
-                      {STATES.map(s=><option key={s} value={s}>{s}</option>)}
+                    <select value={form.location.city} onChange={e=>setForm({...form,location:{...form.location,city:e.target.value}})} className="input-field" required>
+                      {CITIES.map(c=><option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>

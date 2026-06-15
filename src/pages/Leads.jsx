@@ -10,7 +10,7 @@ const BUDGET_OPTIONS = [
   { label: '₹10–15 Lakhs', min: 1000000, max: 1500000 },
   { label: '₹15 Lakhs+', min: 1500000 },
 ]
-const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune', 'Ahmedabad', 'Kolkata', 'Jaipur', 'Kochi', 'Chandigarh', 'Surat', 'Goa']
+const CITIES = ['Mumbai', 'Bangalore', 'Mysore', 'Hyderabad', 'Delhi']
 
 function MultiSelect({ label, options, selected, onToggle, getLabel = o => o }) {
   const [open, setOpen] = useState(false)
