@@ -25,7 +25,7 @@ function AppRoutes() {
         {!noLayout && <Header />}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/leads" element={<Leads />} />
+          <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -13,9 +13,9 @@ import {
   RiFlashlightLine, RiFileTextLine, RiEyeLine,
 } from 'react-icons/ri'
 
-const CATEGORIES = ['Full Home Interior','Modular Kitchen','Office & Commercial','Bedroom & Wardrobe','Living Room','Restaurant & Hospitality','Retail Store','3D Visualization','Renovation','Landscape & Exterior']
+const CATEGORIES = ['Full Home Interiors','Modular Kitchen','Apartment Interiors','Villa Interiors']
 const STATES = ['Maharashtra','Delhi','Karnataka','Tamil Nadu','Telangana','Gujarat','Rajasthan','West Bengal','Kerala','Punjab','Goa','Madhya Pradesh']
-const INIT = { title:'',category:'Full Home Interior',projectDescription:'',propertySize:'',budget:{min:'',max:''},location:{city:'',state:'',area:''},clientName:'',clientPhone:'',clientEmail:'',price:'',isFeatured:false }
+const INIT = { title:'',category:'Full Home Interiors',projectDescription:'',propertySize:'',budget:{min:'',max:''},location:{city:'',state:'',area:''},clientName:'',clientPhone:'',clientEmail:'',price:'',stock:3,isFeatured:false }
 
 const VISIBILITY_FIELDS = [
   { key: 'category', label: 'Category' },
@@ -32,18 +32,6 @@ const VISIBILITY_FIELDS = [
   { key: 'clientEmail', label: 'Client Email' },
 ]
 
-const CMS_SECTIONS = [
-  { key: 'header', label: 'Header & Navigation' },
-  { key: 'hero', label: 'Hero Section' },
-  { key: 'stats', label: 'Stats Bar' },
-  { key: 'howItWorks', label: 'How It Works' },
-  { key: 'whyUs', label: 'Why Scale Studio' },
-  { key: 'pricing', label: 'Pricing Section' },
-  { key: 'testimonials', label: 'Testimonials' },
-  { key: 'faq', label: 'FAQ' },
-  { key: 'ctaSection', label: 'CTA Section' },
-  { key: 'footer', label: 'Footer' },
-]
 
 export default function Admin() {
   const [tab, setTab] = useState('dashboard')
@@ -60,7 +48,6 @@ export default function Admin() {
   // CMS state
   const { cms, visibility, updateCMS, updateVisibility } = useCMS()
   const [cmsLocal, setCmsLocal] = useState(null)
-  const [cmsSection, setCmsSection] = useState('header')
   const [cmsSaving, setCmsSaving] = useState(false)
 
   // Visibility state
@@ -91,14 +78,15 @@ export default function Admin() {
   const openAdd = () => { setEditing(null); setForm(INIT); setShowForm(true) }
   const openEdit = (lead) => {
     setEditing(lead)
-    setForm({ title:lead.title,category:lead.category,projectDescription:lead.projectDescription||'',propertySize:lead.propertySize||'',budget:{min:lead.budget?.min,max:lead.budget?.max},location:{city:lead.location?.city,state:lead.location?.state||'',area:lead.location?.area||''},clientName:lead.clientName,clientPhone:lead.clientPhone,clientEmail:lead.clientEmail||'',price:lead.price,isFeatured:lead.isFeatured||false })
+    setForm({ title:lead.title,category:lead.category,projectDescription:lead.projectDescription||'',propertySize:lead.propertySize||'',budget:{min:lead.budget?.min,max:lead.budget?.max},location:{city:lead.location?.city,state:lead.location?.state||'',area:lead.location?.area||''},clientName:lead.clientName,clientPhone:lead.clientPhone,clientEmail:lead.clientEmail||'',price:lead.price,stock:lead.stock??3,isFeatured:lead.isFeatured||false })
     setShowForm(true)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setSubmitting(true)
     try {
-      const payload = { ...form, budget:{min:Number(form.budget.min),max:Number(form.budget.max)}, price:Number(form.price) }
+      const stockVal = Number(form.stock) || 3
+      const payload = { ...form, budget:{min:Number(form.budget.min),max:Number(form.budget.max)}, price:Number(form.price), stock:stockVal, totalStock: editing ? (editing.totalStock || stockVal) : stockVal }
       if (editing) { await api.put(`/admin/leads/${editing._id}`,payload); toast.success('Lead updated!') }
       else { await api.post('/admin/leads',payload); toast.success('Lead added!') }
       setShowForm(false); fetchLeads(); fetchStats()
@@ -308,6 +296,12 @@ export default function Admin() {
                               <TD className="text-ink-2 text-sm">{lead.location?.city}</TD>
                               <TD className="text-ink-2 text-sm">₹{(lead.budget?.min/100000).toFixed(0)}L–{(lead.budget?.max/100000).toFixed(0)}L</TD>
                               <TD className="text-ink font-bold text-sm">₹{lead.price}</TD>
+                              <TD>
+                                {(lead.stock ?? 3) <= 0
+                                  ? <span className="badge bg-red-100 text-red-600 border border-red-200 text-xs">Sold Out</span>
+                                  : <span className="badge bg-gray-100 text-ink-2 border border-gray-200 text-xs">{lead.stock ?? 3}/{lead.totalStock || 3} left</span>
+                                }
+                              </TD>
                               <TD><span className={`badge border text-xs ${lead.isActive?'bg-emerald-100 text-emerald-700 border-emerald-200':'bg-red-100 text-red-600 border-red-200'}`}>{lead.isActive?'Active':'Inactive'}</span></TD>
                               <TD>
                                 <div className="flex items-center gap-2">
@@ -392,300 +386,33 @@ export default function Admin() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-extrabold text-ink">Site Content</h2>
-                    <p className="text-ink-2 text-sm mt-1">Edit all website text — changes apply instantly after saving.</p>
+                    <p className="text-ink-2 text-sm mt-1">Update contact details and social media links.</p>
                   </div>
                   <button onClick={saveCMS} disabled={cmsSaving} className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2 disabled:opacity-60">
                     {cmsSaving ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <RiCheckLine/>}
-                    Save All Changes
+                    Save Changes
                   </button>
                 </div>
 
-                <div className="grid lg:grid-cols-4 gap-6">
-                  {/* Section selector */}
-                  <div className="bg-white border border-violet-100 rounded-2xl p-4 shadow-card h-fit">
-                    <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">Sections</p>
-                    <div className="flex flex-col gap-1">
-                      {CMS_SECTIONS.map(s => (
-                        <button
-                          key={s.key}
-                          onClick={() => setCmsSection(s.key)}
-                          className={`text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                            cmsSection === s.key
-                              ? 'bg-violet-600 text-white'
-                              : 'text-ink-2 hover:bg-violet-50 hover:text-ink'
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {/* Contact Details */}
+                  <div className="bg-white border border-violet-100 rounded-2xl p-6 shadow-card">
+                    <h3 className="text-ink font-bold text-base mb-5">Contact Details</h3>
+                    <div className="flex flex-col gap-4">
+                      <InputField label="Email" value={cmsLocal.footer?.email} onChange={v => updateCmsField('footer','email',v)} placeholder="hello@scalestudio.in" />
+                      <InputField label="Phone" value={cmsLocal.footer?.phone} onChange={v => updateCmsField('footer','phone',v)} placeholder="+91 98765 00000" />
+                      <InputField label="Address" value={cmsLocal.footer?.address} onChange={v => updateCmsField('footer','address',v)} placeholder="Mumbai, Maharashtra" />
                     </div>
                   </div>
 
-                  {/* Fields editor */}
-                  <div className="lg:col-span-3 bg-white border border-violet-100 rounded-2xl p-6 shadow-card">
-                    <h3 className="text-ink font-bold text-base mb-5">
-                      {CMS_SECTIONS.find(s => s.key === cmsSection)?.label}
-                    </h3>
-
+                  {/* Social Links */}
+                  <div className="bg-white border border-violet-100 rounded-2xl p-6 shadow-card">
+                    <h3 className="text-ink font-bold text-base mb-5">Social Media Links</h3>
                     <div className="flex flex-col gap-4">
-
-                      {/* HEADER */}
-                      {cmsSection === 'header' && (
-                        <>
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Brand Name" value={cmsLocal.header?.brandName} onChange={v => updateCmsField('header','brandName',v)} />
-                            <InputField label="Brand Suffix" value={cmsLocal.header?.brandSuffix} onChange={v => updateCmsField('header','brandSuffix',v)} />
-                          </div>
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Login Button Text" value={cmsLocal.header?.loginBtn} onChange={v => updateCmsField('header','loginBtn',v)} />
-                            <InputField label="Join Button Text" value={cmsLocal.header?.joinBtn} onChange={v => updateCmsField('header','joinBtn',v)} />
-                          </div>
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Nav Link 1" value={cmsLocal.header?.nav1} onChange={v => updateCmsField('header','nav1',v)} placeholder="Home" />
-                            <InputField label="Nav Link 2" value={cmsLocal.header?.nav2} onChange={v => updateCmsField('header','nav2',v)} placeholder="How It Works" />
-                            <InputField label="Nav Link 3" value={cmsLocal.header?.nav3} onChange={v => updateCmsField('header','nav3',v)} placeholder="Pricing" />
-                            <InputField label="Nav Link 4" value={cmsLocal.header?.nav4} onChange={v => updateCmsField('header','nav4',v)} placeholder="Leads" />
-                          </div>
-                        </>
-                      )}
-
-                      {/* HERO */}
-                      {cmsSection === 'hero' && (
-                        <>
-                          <InputField label="Badge Text" value={cmsLocal.hero?.badge} onChange={v => updateCmsField('hero','badge',v)} />
-                          <div className="grid sm:grid-cols-3 gap-4">
-                            <InputField label="Heading Line 1" value={cmsLocal.hero?.heading1} onChange={v => updateCmsField('hero','heading1',v)} />
-                            <InputField label="Heading Line 2 (gradient)" value={cmsLocal.hero?.heading2} onChange={v => updateCmsField('hero','heading2',v)} />
-                            <InputField label="Heading Line 3" value={cmsLocal.hero?.heading3} onChange={v => updateCmsField('hero','heading3',v)} />
-                          </div>
-                          <InputField label="Subtext" value={cmsLocal.hero?.subtext} onChange={v => updateCmsField('hero','subtext',v)} multiline />
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="CTA Button 1" value={cmsLocal.hero?.cta1} onChange={v => updateCmsField('hero','cta1',v)} />
-                            <InputField label="CTA Button 2" value={cmsLocal.hero?.cta2} onChange={v => updateCmsField('hero','cta2',v)} />
-                          </div>
-                          <InputField label="Social Proof Text" value={cmsLocal.hero?.socialProof} onChange={v => updateCmsField('hero','socialProof',v)} />
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider">Mini Stats</p>
-                          <div className="grid sm:grid-cols-3 gap-4">
-                            <InputField label="Stat 1 Value" value={cmsLocal.hero?.stat1Value} onChange={v => updateCmsField('hero','stat1Value',v)} />
-                            <InputField label="Stat 1 Label" value={cmsLocal.hero?.stat1Label} onChange={v => updateCmsField('hero','stat1Label',v)} />
-                          </div>
-                          <div className="grid sm:grid-cols-3 gap-4">
-                            <InputField label="Stat 2 Value" value={cmsLocal.hero?.stat2Value} onChange={v => updateCmsField('hero','stat2Value',v)} />
-                            <InputField label="Stat 2 Label" value={cmsLocal.hero?.stat2Label} onChange={v => updateCmsField('hero','stat2Label',v)} />
-                          </div>
-                          <div className="grid sm:grid-cols-3 gap-4">
-                            <InputField label="Stat 3 Value" value={cmsLocal.hero?.stat3Value} onChange={v => updateCmsField('hero','stat3Value',v)} />
-                            <InputField label="Stat 3 Label" value={cmsLocal.hero?.stat3Label} onChange={v => updateCmsField('hero','stat3Label',v)} />
-                          </div>
-                        </>
-                      )}
-
-                      {/* STATS BAR */}
-                      {cmsSection === 'stats' && (
-                        <div className="flex flex-col gap-5">
-                          {(cmsLocal.stats || []).map((stat, i) => (
-                            <div key={i} className="border border-violet-100 rounded-xl p-4">
-                              <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">Stat {i+1}</p>
-                              <div className="grid sm:grid-cols-2 gap-4">
-                                <InputField label="Value" value={stat.value} onChange={v => updateCmsDirectArray('stats', i, 'value', v)} />
-                                <InputField label="Label" value={stat.label} onChange={v => updateCmsDirectArray('stats', i, 'label', v)} />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* HOW IT WORKS */}
-                      {cmsSection === 'howItWorks' && (
-                        <>
-                          <InputField label="Section Tag" value={cmsLocal.howItWorks?.tag} onChange={v => updateCmsField('howItWorks','tag',v)} />
-                          <InputField label="Heading" value={cmsLocal.howItWorks?.heading} onChange={v => updateCmsField('howItWorks','heading',v)} />
-                          <InputField label="Subtext" value={cmsLocal.howItWorks?.subtext} onChange={v => updateCmsField('howItWorks','subtext',v)} multiline />
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mt-2">Steps</p>
-                          <div className="flex flex-col gap-4">
-                            {(cmsLocal.howItWorks?.steps || []).map((step, i) => (
-                              <div key={i} className="border border-violet-100 rounded-xl p-4">
-                                <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">Step {i+1}</p>
-                                <div className="flex flex-col gap-3">
-                                  <InputField label="Title" value={step.title} onChange={v => updateCmsArrayItem('howItWorks','steps',i,'title',v)} />
-                                  <InputField label="Description" value={step.desc} onChange={v => updateCmsArrayItem('howItWorks','steps',i,'desc',v)} multiline />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-
-                      {/* WHY US */}
-                      {cmsSection === 'whyUs' && (
-                        <>
-                          <InputField label="Section Tag" value={cmsLocal.whyUs?.tag} onChange={v => updateCmsField('whyUs','tag',v)} />
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Heading Line 1" value={cmsLocal.whyUs?.heading1} onChange={v => updateCmsField('whyUs','heading1',v)} />
-                            <InputField label="Heading Line 2 (gradient)" value={cmsLocal.whyUs?.heading2} onChange={v => updateCmsField('whyUs','heading2',v)} />
-                          </div>
-                          <InputField label="Subtext" value={cmsLocal.whyUs?.subtext} onChange={v => updateCmsField('whyUs','subtext',v)} multiline />
-                          <InputField label="CTA Button Text" value={cmsLocal.whyUs?.cta} onChange={v => updateCmsField('whyUs','cta',v)} />
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mt-2">Bullet Points</p>
-                          <div className="flex flex-col gap-2">
-                            {(cmsLocal.whyUs?.bullets || []).map((bullet, i) => (
-                              <div key={i}>
-                                <InputField label={`Bullet ${i+1}`} value={bullet}
-                                  onChange={v => {
-                                    const bullets = [...(cmsLocal.whyUs?.bullets || [])]
-                                    bullets[i] = v
-                                    setCmsLocal(prev => ({ ...prev, whyUs: { ...prev.whyUs, bullets } }))
-                                  }}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mt-2">Features</p>
-                          <div className="flex flex-col gap-4">
-                            {(cmsLocal.whyUs?.features || []).map((feat, i) => (
-                              <div key={i} className="border border-violet-100 rounded-xl p-4">
-                                <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">Feature {i+1}</p>
-                                <div className="flex flex-col gap-3">
-                                  <InputField label="Title" value={feat.title} onChange={v => updateCmsArrayItem('whyUs','features',i,'title',v)} />
-                                  <InputField label="Description" value={feat.desc} onChange={v => updateCmsArrayItem('whyUs','features',i,'desc',v)} multiline />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-
-                      {/* PRICING */}
-                      {cmsSection === 'pricing' && (
-                        <>
-                          <InputField label="Section Tag" value={cmsLocal.pricing?.tag} onChange={v => updateCmsField('pricing','tag',v)} />
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Heading Part 1" value={cmsLocal.pricing?.heading1} onChange={v => updateCmsField('pricing','heading1',v)} />
-                            <InputField label="Heading Part 2 (gradient)" value={cmsLocal.pricing?.heading2} onChange={v => updateCmsField('pricing','heading2',v)} />
-                          </div>
-                          <InputField label="Subtext" value={cmsLocal.pricing?.subtext} onChange={v => updateCmsField('pricing','subtext',v)} multiline />
-                          <InputField label="CTA Button Text" value={cmsLocal.pricing?.cta} onChange={v => updateCmsField('pricing','cta',v)} />
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mt-2">Plans</p>
-                          <div className="flex flex-col gap-4">
-                            {(cmsLocal.pricing?.plans || []).map((plan, i) => (
-                              <div key={i} className="border border-violet-100 rounded-xl p-4">
-                                <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">Plan {i+1}</p>
-                                <div className="flex flex-col gap-3">
-                                  <div className="grid sm:grid-cols-3 gap-3">
-                                    <InputField label="Name" value={plan.name} onChange={v => updateCmsArrayItem('pricing','plans',i,'name',v)} />
-                                    <InputField label="Price" value={plan.price} onChange={v => updateCmsArrayItem('pricing','plans',i,'price',v)} />
-                                    <InputField label="Per Lead Text" value={plan.perLead} onChange={v => updateCmsArrayItem('pricing','plans',i,'perLead',v)} />
-                                  </div>
-                                  <InputField label="Badge Tag (optional)" value={plan.tag || ''} onChange={v => updateCmsArrayItem('pricing','plans',i,'tag',v)} />
-                                  <p className="text-ink-3 text-xs font-bold uppercase tracking-wider">Features (one per line)</p>
-                                  <textarea
-                                    value={(plan.features || []).join('\n')}
-                                    onChange={e => updateCmsArrayItem('pricing','plans',i,'features',e.target.value.split('\n'))}
-                                    className="input-field resize-none h-28 text-sm"
-                                    placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
-                                  />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-
-                      {/* TESTIMONIALS */}
-                      {cmsSection === 'testimonials' && (
-                        <>
-                          <InputField label="Section Tag" value={cmsLocal.testimonials?.tag} onChange={v => updateCmsField('testimonials','tag',v)} />
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Heading Part 1" value={cmsLocal.testimonials?.heading1} onChange={v => updateCmsField('testimonials','heading1',v)} />
-                            <InputField label="Heading Part 2 (gradient)" value={cmsLocal.testimonials?.heading2} onChange={v => updateCmsField('testimonials','heading2',v)} />
-                          </div>
-                          <InputField label="Subtext" value={cmsLocal.testimonials?.subtext} onChange={v => updateCmsField('testimonials','subtext',v)} />
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mt-2">Testimonials</p>
-                          <div className="flex flex-col gap-4">
-                            {(cmsLocal.testimonials?.items || []).map((t, i) => (
-                              <div key={i} className="border border-violet-100 rounded-xl p-4">
-                                <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">Testimonial {i+1}</p>
-                                <div className="flex flex-col gap-3">
-                                  <div className="grid sm:grid-cols-3 gap-3">
-                                    <InputField label="Name" value={t.name} onChange={v => updateCmsArrayItem('testimonials','items',i,'name',v)} />
-                                    <InputField label="Role" value={t.role} onChange={v => updateCmsArrayItem('testimonials','items',i,'role',v)} />
-                                    <InputField label="City" value={t.city} onChange={v => updateCmsArrayItem('testimonials','items',i,'city',v)} />
-                                  </div>
-                                  <InputField label="Quote" value={t.quote} onChange={v => updateCmsArrayItem('testimonials','items',i,'quote',v)} multiline />
-                                  <div className="grid sm:grid-cols-2 gap-3">
-                                    <InputField label="Result" value={t.result} onChange={v => updateCmsArrayItem('testimonials','items',i,'result',v)} />
-                                    <InputField label="Initials (2 letters)" value={t.initials} onChange={v => updateCmsArrayItem('testimonials','items',i,'initials',v)} />
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-
-                      {/* FAQ */}
-                      {cmsSection === 'faq' && (
-                        <>
-                          <InputField label="Section Tag" value={cmsLocal.faq?.tag} onChange={v => updateCmsField('faq','tag',v)} />
-                          <InputField label="Heading" value={cmsLocal.faq?.heading} onChange={v => updateCmsField('faq','heading',v)} />
-                          <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mt-2">FAQ Items</p>
-                          <div className="flex flex-col gap-4">
-                            {(cmsLocal.faq?.items || []).map((item, i) => (
-                              <div key={i} className="border border-violet-100 rounded-xl p-4">
-                                <p className="text-ink-3 text-xs font-bold uppercase tracking-wider mb-3">FAQ {i+1}</p>
-                                <div className="flex flex-col gap-3">
-                                  <InputField label="Question" value={item.q} onChange={v => updateCmsArrayItem('faq','items',i,'q',v)} />
-                                  <InputField label="Answer" value={item.a} onChange={v => updateCmsArrayItem('faq','items',i,'a',v)} multiline />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-
-                      {/* CTA SECTION */}
-                      {cmsSection === 'ctaSection' && (
-                        <>
-                          <InputField label="Badge Text" value={cmsLocal.ctaSection?.badge} onChange={v => updateCmsField('ctaSection','badge',v)} />
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="Heading Line 1" value={cmsLocal.ctaSection?.heading1} onChange={v => updateCmsField('ctaSection','heading1',v)} />
-                            <InputField label="Heading Line 2" value={cmsLocal.ctaSection?.heading2} onChange={v => updateCmsField('ctaSection','heading2',v)} />
-                          </div>
-                          <InputField label="Subtext" value={cmsLocal.ctaSection?.subtext} onChange={v => updateCmsField('ctaSection','subtext',v)} multiline />
-                          <div className="grid sm:grid-cols-2 gap-4">
-                            <InputField label="CTA Button 1" value={cmsLocal.ctaSection?.cta1} onChange={v => updateCmsField('ctaSection','cta1',v)} />
-                            <InputField label="CTA Button 2" value={cmsLocal.ctaSection?.cta2} onChange={v => updateCmsField('ctaSection','cta2',v)} />
-                          </div>
-                          <InputField label="Footnote" value={cmsLocal.ctaSection?.footnote} onChange={v => updateCmsField('ctaSection','footnote',v)} />
-                        </>
-                      )}
-
-                      {/* FOOTER */}
-                      {cmsSection === 'footer' && (
-                        <>
-                          <InputField label="Tagline" value={cmsLocal.footer?.tagline} onChange={v => updateCmsField('footer','tagline',v)} multiline />
-                          <div className="grid sm:grid-cols-3 gap-4">
-                            <InputField label="Email" value={cmsLocal.footer?.email} onChange={v => updateCmsField('footer','email',v)} />
-                            <InputField label="Phone" value={cmsLocal.footer?.phone} onChange={v => updateCmsField('footer','phone',v)} />
-                            <InputField label="Address" value={cmsLocal.footer?.address} onChange={v => updateCmsField('footer','address',v)} />
-                          </div>
-                          <InputField label="Copyright Text" value={cmsLocal.footer?.copyright} onChange={v => updateCmsField('footer','copyright',v)} />
-                        </>
-                      )}
-
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-violet-50 flex gap-3">
-                      <button onClick={saveCMS} disabled={cmsSaving} className="btn-primary px-6 py-2.5 text-sm flex items-center gap-2 disabled:opacity-60">
-                        {cmsSaving ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"/> : <RiCheckLine/>}
-                        Save Changes
-                      </button>
-                      <button
-                        onClick={() => { if(confirm('Reset this section to defaults?')) { setCmsLocal(prev => ({ ...prev, [cmsSection]: DEFAULT_CMS[cmsSection] })) }}}
-                        className="btn-ghost px-6 py-2.5 text-sm"
-                      >
-                        Reset to Default
-                      </button>
+                      <InputField label="Instagram URL" value={cmsLocal.social?.instagram} onChange={v => updateCmsField('social','instagram',v)} placeholder="https://instagram.com/..." />
+                      <InputField label="LinkedIn URL" value={cmsLocal.social?.linkedin} onChange={v => updateCmsField('social','linkedin',v)} placeholder="https://linkedin.com/..." />
+                      <InputField label="Twitter / X URL" value={cmsLocal.social?.twitter} onChange={v => updateCmsField('social','twitter',v)} placeholder="https://twitter.com/..." />
+                      <InputField label="YouTube URL" value={cmsLocal.social?.youtube} onChange={v => updateCmsField('social','youtube',v)} placeholder="https://youtube.com/..." />
                     </div>
                   </div>
                 </div>
@@ -822,6 +549,10 @@ export default function Admin() {
                   <div>
                     <label className="text-ink-3 text-xs font-bold uppercase tracking-wider block mb-2">Lead Price (₹) *</label>
                     <input type="number" value={form.price} onChange={e=>setForm({...form,price:e.target.value})} className="input-field" placeholder="499" required/>
+                  </div>
+                  <div>
+                    <label className="text-ink-3 text-xs font-bold uppercase tracking-wider block mb-2">Stock (Slots)</label>
+                    <input type="number" min="0" max="10" value={form.stock} onChange={e=>setForm({...form,stock:Number(e.target.value)})} className="input-field" placeholder="3"/>
                   </div>
                 </div>
 

@@ -20,7 +20,6 @@ export default function Header() {
   const navLinks = [
     { label: header.nav1 || 'Home', href: '/' },
     { label: header.nav2 || 'How It Works', href: '/#how-it-works' },
-    { label: header.nav3 || 'Pricing', href: '/#pricing' },
     { label: header.nav4 || 'Leads', href: '/leads' },
   ]
 
@@ -55,17 +54,14 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map(link => (
-            <Link
-              key={link.label}
-              to={link.href}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 hover:bg-white/10 ${
-                location.pathname === link.href ? 'text-violet-400' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map(link => {
+            const isHash = link.href.includes('#')
+            const isActive = !isHash && location.pathname === link.href
+            const cls = `px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 hover:bg-white/10 ${isActive ? 'text-violet-400' : 'text-white/80 hover:text-white'}`
+            return isHash
+              ? <a key={link.label} href={link.href} className={cls}>{link.label}</a>
+              : <Link key={link.label} to={link.href} className={cls}>{link.label}</Link>
+          })}
         </nav>
 
         {/* Right Actions */}
@@ -131,11 +127,12 @@ export default function Header() {
       {mobileOpen && (
         <div className="md:hidden border-t border-white/10 bg-black/95 backdrop-blur-xl">
           <div className="px-6 py-4 flex flex-col gap-1">
-            {navLinks.map(link => (
-              <Link key={link.label} to={link.href} className="py-3 px-4 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold">
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map(link => {
+              const cls = "py-3 px-4 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all text-sm font-semibold"
+              return link.href.includes('#')
+                ? <a key={link.label} href={link.href} className={cls}>{link.label}</a>
+                : <Link key={link.label} to={link.href} className={cls}>{link.label}</Link>
+            })}
             <div className="border-t border-white/10 mt-2 pt-3 flex flex-col gap-2">
               {user ? (
                 <>

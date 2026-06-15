@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
-import { RiEyeLine, RiEyeOffLine, RiArrowLeftLine, RiCheckLine } from 'react-icons/ri'
-
-const perks = ['Access to 2,400+ monthly leads', 'Filter by city, budget & category', 'Buy any lead directly — no subscription', 'Instant client contact after purchase']
+import { RiEyeLine, RiEyeOffLine, RiArrowLeftLine, RiFlashlightLine } from 'react-icons/ri'
+import logo from '../public/logo.png'
+import leftBg from '../public/left-bg.png'
 
 export default function Register() {
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirm: '' })
@@ -29,45 +29,25 @@ export default function Register() {
   return (
     <div className="min-h-screen flex bg-white">
       {/* Left */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-800 items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:max-w-[50%] flex-1 items-center justify-center p-12 relative overflow-hidden">
+        <img src={leftBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/85 via-purple-700/80 to-indigo-800/90" />
         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:30px_30px]" />
         <div className="absolute top-10 right-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-56 h-56 bg-purple-300/20 rounded-full blur-2xl" />
-        <div className="relative z-10 max-w-md">
-          <div className="section-tag bg-white/15 border-white/25 text-white mb-6">Join the Marketplace</div>
-          <h2 className="text-4xl font-extrabold text-white mb-4 tracking-tight leading-tight">
-            Start receiving<br />premium design leads<br />today
+        <div className="relative z-10 max-w-md text-center flex flex-col items-center">
+          <img src={logo} alt="Scale Studio" className="w-28 h-28 object-contain rounded-2xl mb-8" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white/90 text-sm font-bold mb-6">
+            <RiFlashlightLine /> Premium Design Leads
+          </div>
+          <h2 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
+            Grow your design<br />business with<br />verified leads
           </h2>
-          <p className="text-violet-200 text-base leading-relaxed mb-8">Free signup. Buy only the leads you want.</p>
-          <div className="flex flex-col gap-3 mb-8">
-            {perks.map((perk, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">
-                  <RiCheckLine className="text-white text-xs" />
-                </div>
-                <span className="text-violet-100 text-sm">{perk}</span>
-              </div>
-            ))}
-          </div>
-          <div className="bg-white/10 border border-white/20 rounded-2xl p-5 backdrop-blur-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-white text-sm font-bold">RS</div>
-              <div>
-                <p className="text-white font-bold text-sm">Ravi Sharma</p>
-                <p className="text-violet-300 text-xs">Interior Designer, Mumbai</p>
-              </div>
-              <div className="ml-auto text-right">
-                <p className="text-emerald-300 font-extrabold text-sm">₹12L</p>
-                <p className="text-violet-300 text-[10px]">in 1 month</p>
-              </div>
-            </div>
-            <p className="text-violet-200 text-xs leading-relaxed">"Got 3 high-quality projects in my first month on Scale Studio. The leads are genuinely verified."</p>
-          </div>
         </div>
       </div>
 
       {/* Right */}
-      <div className="flex-1 lg:max-w-[480px] flex flex-col justify-center p-8 bg-white">
+      <div className="flex-1 lg:max-w-[50%] flex flex-col justify-center p-8 bg-white">
         <Link to="/" className="flex items-center gap-2 text-ink-3 hover:text-ink text-sm mb-8 transition-colors w-fit">
           <RiArrowLeftLine /> Back to home
         </Link>

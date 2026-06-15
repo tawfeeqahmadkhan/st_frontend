@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import { RiMapPin2Line, RiTimeLine, RiHeartLine, RiHeartFill, RiLockPasswordLine, RiFlashlightLine, RiBuilding4Line, RiCheckLine } from 'react-icons/ri'
+import { RiMapPin2Line, RiTimeLine, RiHeartLine, RiHeartFill, RiLockPasswordLine, RiFlashlightLine, RiBuilding4Line, RiCheckLine, RiUserLine, RiCloseLine } from 'react-icons/ri'
 import { HiStar } from 'react-icons/hi'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
@@ -9,16 +9,10 @@ import { useCMS } from '../../context/CMSContext'
 import { useNavigate } from 'react-router-dom'
 
 const categoryColors = {
-  'Full Home Interior': { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200' },
+  'Full Home Interiors': { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200' },
   'Modular Kitchen': { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200' },
-  'Office & Commercial': { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
-  'Bedroom & Wardrobe': { bg: 'bg-pink-100', text: 'text-pink-700', border: 'border-pink-200' },
-  'Living Room': { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
-  'Restaurant & Hospitality': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
-  'Retail Store': { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-200' },
-  '3D Visualization': { bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-200' },
-  'Renovation': { bg: 'bg-rose-100', text: 'text-rose-700', border: 'border-rose-200' },
-  'Landscape & Exterior': { bg: 'bg-teal-100', text: 'text-teal-700', border: 'border-teal-200' },
+  'Apartment Interiors': { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' },
+  'Villa Interiors': { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
 }
 
 const formatBudget = (min, max) => {
@@ -29,14 +23,18 @@ const formatBudget = (min, max) => {
 export default function LeadCard({ lead, purchased = false, wishlisted: initialWishlisted = false, onPurchase }) {
   const [wishlisted, setWishlisted] = useState(initialWishlisted)
   const [buying, setBuying] = useState(false)
+  const [showPicker, setShowPicker] = useState(false)
+  const [selectedSlots, setSelectedSlots] = useState(1)
   const { user, refreshUser } = useAuth()
   const { visibility } = useCMS()
   const navigate = useNavigate()
 
   const cat = categoryColors[lead.category] || { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200' }
   const isPurchased = purchased || user?.purchasedLeads?.some(p => (p._id || p) === lead._id)
+  const totalStock = lead.totalStock || 3
+  const stock = lead.stock ?? totalStock
+  const isSoldOut = stock <= 0
 
-  // Determine which visibility level applies
   const visLevel = isPurchased ? 'purchased' : user ? 'loggedIn' : 'public'
   const vis = visibility?.[visLevel] || {}
 
@@ -50,14 +48,19 @@ export default function LeadCard({ lead, purchased = false, wishlisted: initialW
     } catch { toast.error('Failed to update wishlist') }
   }
 
-  const handleBuy = async (e) => {
+  const openPicker = (e) => {
     e.stopPropagation()
     if (!user) { navigate('/login'); return }
-    if (isPurchased) { navigate('/dashboard'); return }
+    setSelectedSlots(1)
+    setShowPicker(true)
+  }
+
+  const confirmBuy = async () => {
     setBuying(true)
     try {
-      const res = await api.post(`/purchases/${lead._id}`)
-      toast.success('Lead purchased! View client details in your dashboard.')
+      const res = await api.post(`/purchases/${lead._id}`, { quantity: selectedSlots })
+      toast.success(`${selectedSlots} slot${selectedSlots > 1 ? 's' : ''} purchased! View client details in your dashboard.`)
+      setShowPicker(false)
       await refreshUser()
       if (onPurchase) onPurchase(res.data.lead)
     } catch (err) {
@@ -83,6 +86,13 @@ export default function LeadCard({ lead, purchased = false, wishlisted: initialW
             {lead.isFeatured && (
               <span className="badge bg-amber-100 text-amber-700 border border-amber-200">
                 <HiStar className="text-[10px]" /> Featured
+              </span>
+            )}
+            {isSoldOut ? (
+              <span className="badge bg-red-100 text-red-600 border border-red-200 font-bold">Sold Out</span>
+            ) : (
+              <span className={`badge border flex items-center gap-1 ${stock === 1 ? 'bg-orange-50 text-orange-600 border-orange-200' : 'bg-gray-50 text-ink-3 border-gray-200'}`}>
+                <RiUserLine className="text-[10px]" /> {stock}/{totalStock} slots
               </span>
             )}
           </div>
@@ -157,6 +167,48 @@ export default function LeadCard({ lead, purchased = false, wishlisted: initialW
         )}
       </div>
 
+      {/* Slot picker — shown when buy is clicked */}
+      {showPicker && (
+        <div className="mx-5 mb-3 p-4 bg-violet-50 border border-violet-200 rounded-2xl">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-ink text-sm font-bold">How many slots?</p>
+            <button onClick={() => setShowPicker(false)} className="text-ink-3 hover:text-ink transition-colors">
+              <RiCloseLine className="text-base" />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 mb-3">
+            {Array.from({ length: stock }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                onClick={() => setSelectedSlots(n)}
+                className={`flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all ${
+                  selectedSlots === n
+                    ? 'bg-violet-600 border-violet-600 text-white'
+                    : 'bg-white border-violet-200 text-ink-2 hover:border-violet-400 hover:text-ink'
+                }`}
+              >
+                {n} {n === 1 ? 'slot' : 'slots'}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-ink-3 text-xs">Total</span>
+            <span className="text-ink font-extrabold text-base">₹{(lead.price * selectedSlots).toLocaleString('en-IN')}</span>
+          </div>
+          <button
+            onClick={confirmBuy}
+            disabled={buying}
+            className="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {buying
+              ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              : <RiFlashlightLine />
+            }
+            {buying ? 'Processing...' : `Confirm — ₹${(lead.price * selectedSlots).toLocaleString('en-IN')}`}
+          </button>
+        </div>
+      )}
+
       {/* Footer */}
       <div className="mt-auto px-5 pb-5 pt-3 flex items-center justify-between gap-3 border-t border-violet-50">
         {vis.budget !== false ? (
@@ -167,24 +219,27 @@ export default function LeadCard({ lead, purchased = false, wishlisted: initialW
         ) : <div />}
 
         <div className="flex items-center gap-2">
-          {isPurchased ? (
+          {isPurchased && (
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-700 text-sm font-bold hover:bg-emerald-200 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-700 text-sm font-bold hover:bg-emerald-200 transition-all"
             >
-              <RiCheckLine /> View Details
+              <RiCheckLine /> Details
+            </button>
+          )}
+
+          {isSoldOut ? (
+            <button disabled className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-400 text-sm font-bold cursor-not-allowed">
+              Sold Out
             </button>
           ) : (
             <button
-              onClick={handleBuy}
-              disabled={buying}
-              className="btn-primary flex items-center gap-2 px-4 py-2.5 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={openPicker}
+              disabled={showPicker}
+              className="btn-primary flex items-center gap-2 px-4 py-2.5 text-sm disabled:opacity-60"
             >
-              {buying
-                ? <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                : <RiFlashlightLine className="text-base" />
-              }
-              <span>{buying ? 'Buying...' : vis.price !== false ? `Buy ₹${lead.price}` : 'Buy Lead'}</span>
+              <RiFlashlightLine className="text-base" />
+              <span>{isPurchased ? 'Buy More' : vis.price !== false ? `Buy ₹${lead.price}` : 'Buy Lead'}</span>
             </button>
           )}
         </div>

@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { RiEyeLine, RiEyeOffLine, RiArrowLeftLine, RiFlashlightLine, RiShieldCheckLine } from 'react-icons/ri'
-import { HiStar } from 'react-icons/hi'
+import logo from '../public/logo.png'
+import leftBg from '../public/left-bg.png'
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
@@ -25,44 +26,25 @@ export default function Login() {
   return (
     <div className="min-h-screen flex bg-white">
       {/* Left */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-800 items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:max-w-[50%] flex-1 items-center justify-center p-12 relative overflow-hidden">
+        <img src={leftBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/85 via-purple-700/80 to-indigo-800/90" />
         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:30px_30px]" />
         <div className="absolute top-10 right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-48 h-48 bg-purple-300/20 rounded-full blur-2xl" />
-        <div className="relative z-10 max-w-md text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white/90 text-sm font-bold mb-8">
+        <div className="relative z-10 max-w-md text-center flex flex-col items-center">
+          <img src={logo} alt="Scale Studio" className="w-28 h-28 object-contain rounded-2xl mb-8" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 border border-white/25 text-white/90 text-sm font-bold mb-6">
             <RiFlashlightLine /> Premium Design Leads
           </div>
-          <h2 className="text-4xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+          <h2 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
             Grow your design<br />business with<br />verified leads
           </h2>
-          <p className="text-violet-200 text-base leading-relaxed mb-10">
-            Join 1,200+ designers closing more projects every week with Scale Studio.
-          </p>
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            {[['2,400+','Monthly leads'],['₹45Cr+','Project value'],['4 min','Alert time']].map(([v,l]) => (
-              <div key={l} className="bg-white/10 border border-white/20 rounded-xl p-4 text-center backdrop-blur-sm">
-                <p className="text-white font-extrabold text-xl">{v}</p>
-                <p className="text-violet-200 text-xs mt-1">{l}</p>
-              </div>
-            ))}
-          </div>
-          <div className="bg-white/10 border border-white/20 rounded-2xl p-5 text-left backdrop-blur-sm">
-            <div className="flex gap-1 mb-3">{[...Array(5)].map((_,i)=><HiStar key={i} className="text-amber-300 text-sm"/>)}</div>
-            <p className="text-violet-100 text-sm leading-relaxed">"Scale Studio helped me close ₹45L+ in projects in 6 months. The lead quality is unmatched."</p>
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/15">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold">PK</div>
-              <div>
-                <p className="text-white text-xs font-bold">Priya Kapoor</p>
-                <p className="text-violet-300 text-[10px]">Studio Owner, Delhi</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Right */}
-      <div className="flex-1 lg:max-w-[480px] flex flex-col justify-center p-8 bg-white">
+      <div className="flex-1 lg:max-w-[50%] flex flex-col justify-center p-8 bg-white">
         <Link to="/" className="flex items-center gap-2 text-ink-3 hover:text-ink text-sm mb-10 transition-colors w-fit">
           <RiArrowLeftLine /> Back to home
         </Link>
